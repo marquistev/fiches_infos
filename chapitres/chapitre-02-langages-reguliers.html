@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Langages réguliers — Fiche des 7 compétences (MPI)</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <div class="top-title"><a href="../index.html" class="home-link">← Mes fiches</a> · Chapitre 2 — Langages réguliers (MPI)</div>
+    <nav class="chips">
+      <a href="#c1">① Mots &amp; facteurs</a>
+      <a href="#c2">② Langages &amp; opérations</a>
+      <a href="#c3">③ ε, ∅, {ε}</a>
+      <a href="#c4">④ Langages réguliers</a>
+      <a href="#c5">⑤ Expressions régulières</a>
+      <a href="#c6">⑥ Langage ↔ regex</a>
+      <a href="#c7">⑦ Transformer une regex</a>
+      <a href="#bonus">★ Langages locaux</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <div class="eyebrow">Fiche de révision</div>
+    <h1>Les 7 compétences exigibles, une par une</h1>
+    <p class="lead">Cette fiche reprend exactement les 7 points listés dans l'annexe « ce qui est concrètement exigible » de ton poly, et range tout le cours dessous. Chaque partie a : l'essentiel à savoir, les pièges classiques, et des exercices flash (clique sur la question pour voir la correction).</p>
+  </div>
+
+  <!-- ============ COMPETENCE 1 ============ -->
+  <section class="skill" id="c1">
+    <div class="skill-head"><span class="skill-num">①</span><h2>Alphabet, mot, préfixe, suffixe, facteur, sous-mot</h2></div>
+    <p class="skill-goal">Objectif du programme : « connaître les notions d'alphabet, de mots, de préfixe, suffixe, facteur et sous-mot. On prendra garde à ne pas confondre facteur et sous-mot. »</p>
+
+    <h3>Les briques de base</h3>
+    <div class="card">
+      <span class="def-label">Déf.</span>
+      <p><strong>Alphabet</strong> Σ : un ensemble fini de <em>lettres</em> (ou symboles).</p>
+      <p><strong>Mot</strong> u sur Σ : une suite finie u₁u₂...uₙ de lettres de Σ, écrites de manière juxtaposée. n = |u| est la <em>longueur</em> du mot. Si n = 0, on obtient le <strong>mot vide</strong>, noté ε.</p>
+      <p>L'ensemble des mots sur Σ se note Σ<sup>∗</sup> ; l'ensemble des mots <em>non-vides</em> se note Σ<sup>+</sup>.</p>
+    </div>
+
+    <h3>Découper un mot</h3>
+    <div class="card">
+      <span class="def-label">Déf. — facteur, préfixe, suffixe</span>
+      <p>Soit v un mot. <strong>u est un facteur de v</strong> s'il existe des mots w₁, w₂ tels que v = w₁uw₂ (u apparaît « intact » quelque part dans v, positions consécutives).</p>
+      <p>Si w₁ = ε, u est un <strong>préfixe</strong> de v (facteur gauche). Si w₂ = ε, u est un <strong>suffixe</strong> de v (facteur droit).</p>
+      <span class="def-label" style="margin-top:14px">Déf. — sous-mot</span>
+      <p><strong>u est un sous-mot de v</strong> si les lettres de u forment une sous-suite de v : il existe une injection croissante f de [[1;n]] dans [[1;p]] telle que uᵢ = v<sub>f(i)</sub> pour tout i. Les lettres de u apparaissent dans v <em>dans le même ordre</em>, mais pas forcément consécutivement.</p>
+    </div>
+
+    <div class="warn">
+      <strong>⚠ Le piège n°1 du chapitre :</strong> tout facteur d'un mot est un sous-mot de ce mot, mais la réciproque est fausse. « Facteur » impose la <em>contiguïté</em> ; « sous-mot » n'impose que <em>l'ordre</em>. Certains ouvrages emploient les deux mots indifféremment — dans ton programme, ce sont deux notions distinctes, sois précis dans tes réponses.
+    </div>
+
+    <h3>Exemple travaillé — sur Σ = {a, b}, le mot <span class="re">abba</span></h3>
+    <div class="table-wrap card">
+      <table>
+        <tr><th>Facteurs</th><td>a, b, ab, ba, bb, abb, bba, abba</td></tr>
+        <tr><th>Préfixes</th><td>a, ab, abb, abba</td></tr>
+        <tr><th>Suffixes</th><td>abba, bba, ba, a</td></tr>
+      </table>
+    </div>
+    <p>Et <span class="re">abb</span> est un <em>sous-mot</em> de <span class="re">ababba</span> (plusieurs réalisations possibles), alors que ce n'est pas un facteur de tous les mots où on peut le repérer comme sous-suite non contiguë.</p>
+
+    <details class="quiz">
+      <summary>Exo flash — abba est-il un sous-mot de baab ?</summary>
+      <div class="answer"><span class="tag">Correction</span>
+      <p>Non. Il faudrait retrouver a, b, b, a <em>dans cet ordre</em> comme sous-suite de b, a, a, b. Le seul a suivant un b initial est en position 2, puis il faudrait deux b après — impossible, il ne reste qu'un b puis un a. Donc abba n'est ni facteur ni sous-mot de baab.</p></div>
+    </details>
+    <details class="quiz">
+      <summary>Exo flash — donne un mot dont <span class="re">ac</span> est un sous-mot mais pas un facteur</summary>
+      <div class="answer"><span class="tag">Correction</span>
+      <p>Par exemple <span class="re">abc</span> : les lettres a puis c apparaissent bien dans cet ordre (sous-mot), mais elles ne sont pas consécutives (le b s'intercale), donc ac n'est pas un facteur de abc.</p></div>
+    </details>
+  </section>
+
+  <!-- ============ COMPETENCE 2 ============ -->
+  <section class="skill" id="c2">
+    <div class="skill-head"><span class="skill-num">②</span><h2>Langage = ensemble de mots ; union, concaténation, étoile</h2></div>
+    <p class="skill-goal">Objectif du programme : « savoir qu'un langage est un ensemble de mots, fini ou non. Connaître les opérations d'union, de concaténation, et d'étoile. »</p>
+
+    <div class="card">
+      <span class="def-label">Déf. — langage</span>
+      <p>Un <strong>langage</strong> sur Σ est une partie L de Σ<sup>∗</sup> — un ensemble (fini ou infini) de mots. Exemples : le langage vide ∅ ; l'ensemble des palindromes sur {a,b} ; Σ<sup>∗</sup> lui-même ; l'ensemble des écritures binaires des entiers impairs (mots finissant par 1).</p>
+    </div>
+
+    <h3>Les trois opérations à connaître</h3>
+    <div class="card">
+      <span class="def-label">Union</span>
+      <p>L₁ ∪ L₂ = mots appartenant à L₁ <em>ou</em> à L₂.</p>
+      <span class="def-label" style="margin-top:10px">Concaténation (produit)</span>
+      <p>L₁L₂ = { u.v | u ∈ L₁, v ∈ L₂ } — tous les mots obtenus en collant un mot de L₁ suivi d'un mot de L₂.</p>
+      <span class="def-label" style="margin-top:10px">Étoile de Kleene</span>
+      <p>On définit d'abord L<sup>0</sup> = {ε} et L<sup>n+1</sup> = L<sup>n</sup>L, puis L<sup>∗</sup> = ⋃<sub>n∈ℕ</sub> L<sup>n</sup>.</p>
+      <p>Caractérisation utile (à savoir refaire) : L<sup>n</sup> = { w₁...wₙ | wᵢ ∈ L } (concaténations d'exactement n mots de L), et L<sup>∗</sup> = { w₁...wₙ | wᵢ ∈ L, n ∈ ℕ } (concaténations d'un nombre <em>quelconque</em>, y compris 0, de mots de L — d'où ε ∈ L<sup>∗</sup> toujours).</p>
+      <p>On note aussi L<sup>+</sup> = ⋃<sub>n≥1</sub> L<sup>n</sup> (au moins un mot de L). On a L<sup>+</sup> = LL<sup>∗</sup> = L<sup>∗</sup>L, et L<sup>+</sup> = L<sup>∗</sup> si ε ∈ L, sinon L<sup>+</sup> = L<sup>∗</sup>\{ε}.</p>
+    </div>
+
+    <div class="warn">
+      <strong>⚠ Attention aux idées fausses :</strong> L<sup>n</sup> n'est <em>pas</em> {uⁿ | u ∈ L} (ce n'est pas « n copies du même mot ») : c'est l'ensemble des concaténations de n mots <em>quelconques</em> (potentiellement différents) de L. Même remarque pour L<sup>∗</sup> vs {uⁿ | u ∈ L, n ∈ ℕ}.
+    </div>
+
+    <h3>Petites propriétés à avoir en tête</h3>
+    <div class="card">
+      <ul>
+        <li>Neutre/absorbant : L ∪ ∅ = L, Lε = L, L∅ = ∅L = ∅</li>
+        <li>Distributivité de la concaténation sur l'union : L₁(L₂ ∪ L₃) = L₁L₂ ∪ L₁L₃, et symétriquement à droite</li>
+        <li>∅<sup>∗</sup> = {ε} (aucune concaténation non triviale n'est possible dans ∅, seul le cas n=0 reste)</li>
+      </ul>
+    </div>
+
+    <details class="quiz">
+      <summary>Exo flash — avec Lₚ (mots de longueur paire) et Lᵢ (mots de longueur impaire), que vaut LᵢLᵢ ?</summary>
+      <div class="answer"><span class="tag">Correction</span>
+      <p>La concaténation de deux mots de longueur impaire donne un mot de longueur paire, et on peut obtenir n'importe quelle longueur paire ≥ 2 (mais pas 0, car un mot de longueur impaire est non-vide). Donc LᵢLᵢ = Lₚ \ {ε}.</p></div>
+    </details>
+    <details class="quiz">
+      <summary>Exo flash — pourquoi ε appartient-il toujours à L<sup>∗</sup>, même si ε ∉ L ?</summary>
+      <div class="answer"><span class="tag">Correction</span>
+      <p>Parce que L<sup>∗</sup> contient L<sup>0</sup> = {ε} par définition (concaténer 0 mot de L donne le mot vide). C'est vrai quel que soit L, y compris L = ∅.</p></div>
+    </details>
+  </section>
+
+  <!-- ============ COMPETENCE 3 ============ -->
+  <section class="skill" id="c3">
+    <div class="skill-head"><span class="skill-num">③</span><h2>Ne pas confondre ε, ∅ et {ε}</h2></div>
+    <p class="skill-goal">Objectif du programme : « faire absolument la différence entre ε, ∅, {ε}. »</p>
+
+    <div class="table-wrap card">
+      <table>
+        <tr><th>Symbole</th><th>Nature</th><th>Contenu</th></tr>
+        <tr><td><code>ε</code></td><td>un <strong>mot</strong> (élément de Σ<sup>∗</sup>)</td><td>la suite vide de lettres — le mot de longueur 0</td></tr>
+        <tr><td><code>∅</code></td><td>un <strong>langage</strong> (sous-ensemble de Σ<sup>∗</sup>)</td><td>ne contient aucun mot — le langage vide</td></tr>
+        <tr><td><code>{ε}</code></td><td>un <strong>langage</strong> (sous-ensemble de Σ<sup>∗</sup>)</td><td>contient exactement un mot : le mot vide — cardinal 1</td></tr>
+      </table>
+    </div>
+
+    <div class="warn">
+      <strong>⚠ À l'oral :</strong> le poly est explicite là-dessus — on s'interdit de dire « le vide » tout court, car c'est ambigu entre « mot vide » et « langage vide ». Utilise toujours l'expression complète : « mot vide », « langage vide », ou « langage réduit au mot vide ».
+    </div>
+
+    <details class="quiz">
+      <summary>Exo flash — L∅ et Lε valent-ils la même chose ?</summary>
+      <div class="answer"><span class="tag">Correction</span>
+      <p>Non, pas du tout ! L∅ = ∅ (concaténer avec le langage vide ne produit aucun mot : il n'y a rien à concaténer). Lε = L (concaténer avec {ε} ne change rien, car ε est neutre pour la concaténation des mots). Confondre ∅ et {ε} ici est l'erreur la plus fréquente du chapitre.</p></div>
+    </details>
+  </section>
+
+  <!-- ============ COMPETENCE 4 ============ -->
+  <section class="skill" id="c4">
+    <div class="skill-head"><span class="skill-num">④</span><h2>Définition inductive des langages réguliers, et stabilité</h2></div>
+    <p class="skill-goal">Objectif du programme : « savoir donner une définition inductive des langages réguliers, à partir de ces opérations et de langages de base. On sera attentif aux résultats de stabilité : l'union, la concaténation, et l'étoile de langages réguliers sont réguliers. »</p>
+
+    <div class="card">
+      <span class="def-label">Construction inductive</span>
+      <p>La famille des langages réguliers sur Σ est la plus petite famille de langages telle que :</p>
+      <ul>
+        <li><strong>Cas de base</strong> : ∅ est régulier ; pour toute lettre a ∈ Σ, {a} est régulier.</li>
+        <li><strong>Union</strong> : si L₁ et L₂ sont réguliers, alors L₁ ∪ L₂ est régulier.</li>
+        <li><strong>Concaténation</strong> : si L₁ et L₂ sont réguliers, alors L₁L₂ est régulier.</li>
+        <li><strong>Étoile</strong> : si L est régulier, alors L<sup>∗</sup> est régulier.</li>
+      </ul>
+      <p>Concrètement, un langage est régulier s'il existe une <strong>expression régulière</strong> e telle que L = L(e) (voir compétence ⑤) — c'est la définition officielle, équivalente à la construction ci-dessus.</p>
+    </div>
+
+    <div class="good">
+      <strong>✓ Résultat de stabilité à retenir :</strong> partant de langages réguliers, toute combinaison par union, concaténation ou étoile <em>reste</em> régulière. C'est exactement ce qui justifie qu'on puisse construire des langages réguliers compliqués en assemblant des briques simples (une lettre à la fois).
+    </div>
+
+    <p>Ce chapitre insiste aussi sur le fait que <strong>tous les langages ne sont pas réguliers</strong> (argument de cardinalité : Σ<sup>∗</sup> est dénombrable donc P(Σ<sup>∗</sup>) est indénombrable, alors que l'ensemble des langages réguliers, vu comme ensemble d'arbres syntaxiques finis, est dénombrable). Exemples classiques non réguliers : {aⁿbⁿ | n ∈ ℕ}, et le langage des expressions bien parenthésées. Intuition (pas une preuve) : reconnaître ces mots demande de « compter sans limite », donc une mémoire non bornée — ce que ne peut pas faire un mécanisme régulier.</p>
+
+    <details class="quiz">
+      <summary>Exo flash — pourquoi {aⁿbⁿ | n ∈ ℕ} « sent » le non-régulier ?</summary>
+      <div class="answer"><span class="tag">Correction</span>
+      <p>Parce que, en lisant le mot de gauche à droite, il faut retenir <em>exactement</em> combien de a ont été lus avant de vérifier qu'il y a le même nombre de b — une mémoire de taille non bornée (dépendant de n). C'est un indice fort de non-régularité (le lemme de l'étoile, vu au chapitre suivant, permettra de le prouver rigoureusement).</p></div>
+    </details>
+  </section>
+
+  <!-- ============ COMPETENCE 5 ============ -->
+  <section class="skill" id="c5">
+    <div class="skill-head"><span class="skill-num">⑤</span><h2>Définition inductive des expressions régulières</h2></div>
+    <p class="skill-goal">Objectif du programme : « savoir donner une définition inductive des expressions régulières (utile pour écrire un type OCaml et des programmes dessus). »</p>
+
+    <div class="card">
+      <span class="def-label">Déf. — syntaxe</span>
+      <p>Une <strong>expression régulière</strong> sur Σ est définie par induction :</p>
+      <ul>
+        <li>∅ est une expression régulière ; pour tout a ∈ Σ, a est une expression régulière ;</li>
+        <li>si e₁, e₂ sont des expressions régulières, alors <span class="re">e₁ | e₂</span> (« e₁ union e₂ ») et <span class="re">e₁e₂</span> (« e₁ concaténée avec e₂ ») en sont aussi ;</li>
+        <li>si e est une expression régulière, alors <span class="re">e⋆</span> (« e étoile ») en est une aussi.</li>
+      </ul>
+      <span class="def-label" style="margin-top:14px">Déf. — langage engendré</span>
+      <p>On associe à chaque expression e un langage L(e), par les mêmes règles d'induction :</p>
+      <ul>
+        <li>L(∅) = ∅ ; L(a) = {a} pour a ∈ Σ</li>
+        <li>L(e₁ | e₂) = L(e₁) ∪ L(e₂)</li>
+        <li>L(e₁e₂) = L(e₁)L(e₂)</li>
+        <li>L(e⋆) = L(e)<sup>∗</sup></li>
+      </ul>
+    </div>
+
+    <p>On peut voir une expression régulière comme un <strong>arbre syntaxique</strong> : feuilles = lettres de Σ ou ∅ ; nœuds internes = |, concaténation, ou étoile. C'est cette vision arborescente qui rend la définition « inductive » naturelle à coder (type somme en OCaml, fonctions récursives dessus).</p>
+
+    <h3>Notations et priorités à connaître</h3>
+    <div class="card">
+      <ul>
+        <li>On note souvent <strong>Σ</strong> l'expression a₁ | ... | aₙ (union de toutes les lettres) — attention, Σ désigne alors <em>selon le contexte</em> soit l'alphabet, soit cette expression, soit le langage des mots d'une lettre.</li>
+        <li>On note <strong>ε</strong> l'expression ∅⋆ (qui engendre bien {ε}) — même remarque de contexte.</li>
+        <li>Priorités comme en arithmétique : l'étoile se lie le plus fort, puis la concaténation, puis l'union. Ex : <span class="re">a | b.c⋆</span> = <span class="re">a | (b(c⋆))</span>.</li>
+        <li>Abus de notation courant : on confond souvent la notation d'une expression régulière et celle du langage qu'elle engendre (ex. parler « du langage a⋆ | b⋆ »).</li>
+      </ul>
+    </div>
+
+    <details class="quiz">
+      <summary>Exo flash — comment lire l'expression <span class="re">ab⋆ | c</span> sans ambiguïté ?</summary>
+      <div class="answer"><span class="tag">Correction</span>
+      <p>L'étoile se lie d'abord au symbole juste avant elle : c'est <span class="re">(a(b⋆)) | c</span>, c'est-à-dire l'union entre « a suivi d'un nombre quelconque de b » et « c ».</p></div>
+    </details>
+  </section>
+
+  <!-- ============ COMPETENCE 6 ============ -->
+  <section class="skill" id="c6">
+    <div class="skill-head"><span class="skill-num">⑥</span><h2>Passer d'une description informelle à une expression régulière, et réciproquement</h2></div>
+    <p class="skill-goal">Objectif du programme : « savoir fournir une expression régulière décrivant un langage simple donné informellement, et réciproquement, donner une description du langage fourni par une expression régulière. »</p>
+
+    <h3>Boîte à outils : constructions fréquentes</h3>
+    <div class="table-wrap card">
+      <table>
+        <tr><th>Description en français</th><th>Expression régulière</th></tr>
+        <tr><td>tous les mots</td><td><span class="re">Σ⋆</span></td></tr>
+        <tr><td>mots commençant par a</td><td><span class="re">aΣ⋆</span></td></tr>
+        <tr><td>mots terminant par a</td><td><span class="re">Σ⋆a</span></td></tr>
+        <tr><td>mots de longueur exactement 2</td><td><span class="re">ΣΣ</span></td></tr>
+        <tr><td>mots de longueur paire</td><td><span class="re">(ΣΣ)⋆</span></td></tr>
+        <tr><td>mots de longueur impaire</td><td><span class="re">Σ(ΣΣ)⋆</span></td></tr>
+        <tr><td>mots de longueur au plus 2</td><td><span class="re">(ε | Σ)(ε | Σ)</span></td></tr>
+        <tr><td>mots contenant la lettre a (au moins une fois)</td><td><span class="re">Σ⋆aΣ⋆</span></td></tr>
+        <tr><td>mots contenant le <em>facteur</em> ab</td><td><span class="re">Σ⋆abΣ⋆</span></td></tr>
+        <tr><td>mots contenant le <em>sous-mot</em> ab (pas forcément collé)</td><td><span class="re">Σ⋆aΣ⋆bΣ⋆</span></td></tr>
+        <tr><td>mots faits de répétitions du motif ab</td><td><span class="re">(ab)⋆</span></td></tr>
+        <tr><td>mots faits uniquement de a, ou uniquement de b</td><td><span class="re">a⋆ | b⋆</span></td></tr>
+        <tr><td>mots avec un nombre pair de a (b libres)</td><td><span class="re">(aa | b)⋆</span></td></tr>
+      </table>
+    </div>
+
+    <div class="good">
+      <strong>✓ La méthode générale :</strong> repère les « contraintes locales » du langage (début, fin, motifs interdits/obligatoires) puis assemble-les avec Σ⋆ de part et d'autre pour dire « n'importe quoi avant/après ». C'est la même logique qui, en compétence ⑦, servira à distinguer facteur (motif collé, donc Σ⋆motifΣ⋆) et sous-mot (lettres séparées, donc Σ⋆aΣ⋆bΣ⋆...).
+    </div>
+
+    <details class="quiz">
+      <summary>Exo flash — écris une expression régulière pour « les mots de {a,b}⋆ ne contenant pas le facteur bb »</summary>
+      <div class="answer"><span class="tag">Correction</span>
+      <p>Une solution classique : <span class="re">a⋆(ba⋆)⋆</span> — on enchaîne des blocs de a (éventuellement vides) séparés par des b isolés, ce qui empêche mécaniquement d'avoir deux b consécutifs.</p></div>
+    </details>
+    <details class="quiz">
+      <summary>Exo flash — que décrit L(Σ⋆abaΣ⋆) en français ?</summary>
+      <div class="answer"><span class="tag">Correction</span>
+      <p>L'ensemble des mots qui contiennent le facteur <span class="re">aba</span> — c'est-à-dire les mots où la sous-suite consécutive a,b,a apparaît quelque part.</p></div>
+    </details>
+    <details class="quiz">
+      <summary>Exo flash (réciproque) — décris L(a⋆ | b⋆) en français</summary>
+      <div class="answer"><span class="tag">Correction</span>
+      <p>C'est l'union de « uniquement des a » (y compris ε) et « uniquement des b » (y compris ε) : les mots constitués d'une seule lettre répétée (ou le mot vide). Attention : ce n'est <em>pas</em> « les mots avec seulement des a et des b » — un mot comme <span class="re">ab</span> n'est dans aucun des deux morceaux, donc n'est pas dans ce langage.</p></div>
+    </details>
+  </section>
+
+  <!-- ============ COMPETENCE 7 ============ -->
+  <section class="skill" id="c7">
+    <div class="skill-head"><span class="skill-num">⑦</span><h2>Être à l'aise pour transformer des expressions régulières</h2></div>
+    <p class="skill-goal">Objectif du programme : « être à l'aise pour transformer des expressions régulières. »</p>
+
+    <p>On note <span class="re">e₁ ≡ e₂</span> quand L(e₁) = L(e₂) (deux expressions différentes qui décrivent le même langage). C'est une relation d'équivalence, et voici la boîte à outils pour passer de l'une à l'autre.</p>
+
+    <div class="card">
+      <span class="def-label">Règles de réécriture à connaître par cœur</span>
+      <ul>
+        <li><strong>Commutativité de l'union</strong> : e₁ | e₂ ≡ e₂ | e₁</li>
+        <li><strong>Distributivité</strong> : (e₁ | e₂)e₃ ≡ e₁e₃ | e₂e₃, et e₁(e₂ | e₃) ≡ e₁e₂ | e₁e₃</li>
+        <li><strong>Simplifications</strong> : e | ∅ ≡ e &nbsp;·&nbsp; eε ≡ e &nbsp;·&nbsp; e∅ ≡ ∅</li>
+        <li><strong>Plus (+)</strong> : e⁺ ≡ ee⋆ ≡ e⋆e (rappel : e⁺ note l'expression ee⋆)</li>
+        <li><strong>Dépliage de l'étoile</strong> : e⋆ ≡ ε | ee⋆ (« soit le mot vide, soit au moins une copie de e suivie d'autres copies » — c'est l'idée qu'on retrouvera pour dériver des automates au chapitre suivant)</li>
+      </ul>
+    </div>
+
+    <div class="warn">
+      <strong>⚠ Piège classique :</strong> la concaténation n'est <em>pas</em> commutative en général (e₁e₂ ≢ e₂e₁), contrairement à l'union. Ne simplifie jamais en échangeant l'ordre d'une concaténation sans le justifier explicitement (par exemple si les deux langages sont identiques par ailleurs).
+      </div>
+
+    <h3>S'entraîner à transformer</h3>
+    <details class="quiz">
+      <summary>Exo — simplifie <span class="re">(a | ∅)b⋆ε</span></summary>
+      <div class="answer"><span class="tag">Correction</span>
+      <p><span class="re">(a | ∅)b⋆ε ≡ a · b⋆ · ε ≡ ab⋆</span> (on utilise e | ∅ ≡ e, puis eε ≡ e).</p></div>
+    </details>
+    <details class="quiz">
+      <summary>Exo — développe <span class="re">(a | b)(c | d)</span> par distributivité</summary>
+      <div class="answer"><span class="tag">Correction</span>
+      <p><span class="re">(a | b)(c | d) ≡ ac | ad | bc | bd</span> (distributivité à droite puis à gauche).</p></div>
+    </details>
+    <details class="quiz">
+      <summary>Exo — montre que <span class="re">a⁺ | ε</span> ≡ <span class="re">a⋆</span></summary>
+      <div class="answer"><span class="tag">Correction</span>
+      <p>On sait que a⁺ = a⋆ \ {ε} (car ε ∉ {a}). Donc a⁺ | ε = (a⋆ \ {ε}) ∪ {ε} = a⋆. On retrouve bien la règle e⋆ ≡ ε | ee⋆ avec e = a.</p></div>
+    </details>
+  </section>
+
+  <div class="checklist">
+    <h2>✅ Auto-évaluation rapide</h2>
+    <label><input type="checkbox"> Je sais distinguer facteur et sous-mot sur un exemple, et donner un contre-exemple pour l'un et pas l'autre.</label>
+    <label><input type="checkbox"> Je peux définir précisément union, concaténation et étoile, et calculer L<sup>n</sup>, L<sup>∗</sup> sur un petit exemple.</label>
+    <label><input type="checkbox"> Je ne confonds jamais ε, ∅ et {ε} — même à l'oral, sans dire « le vide ».</label>
+    <label><input type="checkbox"> Je sais énoncer la définition inductive des langages réguliers et citer les trois stabilités (union, concaténation, étoile).</label>
+    <label><input type="checkbox"> Je sais écrire la grammaire des expressions régulières et la fonction L(·) qui leur associe un langage.</label>
+    <label><input type="checkbox"> Je sais traduire une phrase en expression régulière, et lire une expression régulière pour la décrire en français.</label>
+    <label><input type="checkbox"> Je connais par cœur les règles de réécriture (commutativité, distributivité, e | ∅, eε, e∅, e⁺, dépliage de e⋆) et je peux les appliquer sur une expression donnée.</label>
+  </div>
+
+  <!-- ============ BONUS : LANGAGES LOCAUX ============ -->
+  <section class="skill bonus" id="bonus">
+    <div class="skill-head"><span class="skill-num">★</span><h2>Langages locaux <span class="bonus-tag">non exigible</span></h2></div>
+    <p class="skill-goal">Ce n'est pas un des 7 points de l'annexe : le programme officiel ne présente cette notion que pour l'utiliser dans une preuve du chapitre suivant (automates). Mais elle est simple, souvent rappelée dans les exercices, et bon marché à maîtriser — d'où cette section en bonus.</p>
+
+    <h3>L'idée intuitive</h3>
+    <p>Un langage est <strong>local</strong> si on peut décider qu'un mot en fait partie en ne regardant que des propriétés « locales » : sa première lettre, sa dernière lettre, et chacun de ses facteurs de longueur 2. Aucune mémoire globale n'est nécessaire — c'est la version la plus simple possible de « regarder un mot par petits bouts ».</p>
+
+    <div class="card">
+      <span class="def-label">Construction préalable</span>
+      <p>Soient P ⊆ Σ, D ⊆ Σ, N ⊆ Σ<sup>2</sup>. On construit :</p>
+      <ul>
+        <li><span class="re">PΣ⋆</span> : les mots dont la <strong>première lettre</strong> est dans P</li>
+        <li><span class="re">Σ⋆D</span> : les mots dont la <strong>dernière lettre</strong> est dans D</li>
+        <li><span class="re">Σ⋆NΣ⋆</span> : les mots contenant <strong>au moins un facteur</strong> de N</li>
+      </ul>
+      <p>En combinant avec l'intersection et la différence ensemblistes (qui ne sont <em>pas</em> des opérations régulières de base, mais restent des opérations ensemblistes légitimes ici), on obtient les mots ayant leur première lettre dans P, leur dernière dans D, et <strong>ne contenant aucun</strong> facteur de N :</p>
+      <p style="text-align:center"><span class="re">(PΣ⋆ ∩ Σ⋆D) \ Σ⋆NΣ⋆</span></p>
+    </div>
+
+    <div class="card">
+      <span class="def-label">Déf. — langage local</span>
+      <p>L est <strong>local</strong> s'il existe P ⊆ Σ, D ⊆ Σ, N ⊆ Σ<sup>2</sup> tels que les mots <em>non-vides</em> de L soient exactement :</p>
+      <p style="text-align:center"><span class="re">L \ {ε} = (PΣ⋆ ∩ Σ⋆D) \ Σ⋆NΣ⋆</span></p>
+      <p>P = premières lettres autorisées, D = dernières lettres autorisées, N = facteurs de longueur 2 <em>interdits</em>. La définition ne dit rien sur ε : un langage local reste local qu'on lui ajoute ou retire le mot vide.</p>
+      <p>Variante équivalente, souvent plus pratique : remplacer N par <strong>F = Σ<sup>2</sup> \ N</strong>, l'ensemble des facteurs de longueur 2 <em>autorisés</em>. On demande alors que tous les facteurs de longueur 2 du mot soient dans F.</p>
+    </div>
+
+    <div class="good">
+      <strong>✓ Unicité :</strong> si L est local, les ensembles P, D, N (ou P, D, F) sont <em>uniques</em> et se calculent directement à partir de L : P = ensemble des premières lettres des mots de L, D = ensemble des dernières lettres, N (ou F) = ensemble des facteurs de longueur 2 interdits (ou autorisés) apparaissant dans les mots de L. C'est ce qui rend la méthode de vérification ci-dessous systématique.
+    </div>
+
+    <h3>Méthode pour tester si un langage est local</h3>
+    <div class="card">
+      <ol>
+        <li>Calcule P (premières lettres des mots de L), D (dernières lettres), et F (tous les facteurs de longueur 2 qui apparaissent réellement dans un mot de L) — ce sont les <em>seuls</em> candidats possibles.</li>
+        <li><strong>Pour montrer que L n'est pas local</strong> : cherche un contre-exemple — un mot qui commence par une lettre de P, finit par une lettre de D, et n'utilise que des facteurs de F, mais qui <em>n'est pas</em> dans L.</li>
+        <li><strong>Pour montrer que L est local</strong> : montre l'inclusion réciproque, c'est-à-dire que tout mot non-vide commençant par une lettre de P, finissant par une lettre de D, et n'utilisant que des facteurs de F, est bien dans L (l'autre inclusion est automatique puisque P, D, F ont été calculés à partir de L).</li>
+      </ol>
+    </div>
+
+    <h3>Deux exemples travaillés</h3>
+    <div class="card">
+      <p><strong>1) L = aa⋆b⋆b est local.</strong> On trouve P = {a}, D = {b}, N = {ba} (le facteur ba est le seul interdit). Un mot commençant par a, finissant par b, sans facteur ba, doit forcément avoir tous ses a groupés au début et tous ses b groupés à la fin (dès qu'un b apparaît, il ne peut plus être suivi d'un a). Un tel mot est donc de la forme a<sup>k</sup>b<sup>p</sup> avec k ≥ 1, p ≥ 1 — exactement les mots de L. L'inclusion réciproque est vérifiée : L est local.</p>
+      <p style="margin-top:14px"><strong>2) L = (aa | ab | bb)⋆ n'est pas local.</strong> Vu les mots du langage, on aurait nécessairement P = D = Σ et N = ∅ (tous les facteurs de longueur 2 possibles apparaissent). Mais alors le mot <span class="re">aba</span> commence par une lettre de Σ, finit par une lettre de Σ, et n'a aucun facteur interdit — il devrait donc être dans L d'après la construction locale. Or <span class="re">aba</span> n'est pas dans L (il faut un nombre pair de a d'après la structure de l'expression). Contre-exemple trouvé : L n'est pas local.</p>
+    </div>
+
+    <h3>Un raccourci pratique : les expressions linéaires</h3>
+    <div class="card">
+      <span class="def-label">Théorème</span>
+      <p>Une expression régulière e est dite <strong>linéaire</strong> si chaque lettre de Σ y apparaît <em>au plus une fois</em>. Si e est linéaire, alors <strong>L(e) est automatiquement local</strong> (la preuve se fait par induction sur la structure de e, en recalculant P, D, F à chaque étape de construction — union, concaténation, étoile).</p>
+    </div>
+    <p>Exemples de langages locaux « gratuits » car décrits par une expression linéaire : <span class="re">(ab)⋆</span>, <span class="re">(a | b)⋆ | c⋆</span>, <span class="re">(a | b)⋆</span> — chaque lettre a, b, c n'apparaît qu'une fois dans l'écriture.</p>
+
+    <div class="warn">
+      <strong>⚠ Attention, condition suffisante seulement :</strong> la réciproque du théorème est fausse. L'exemple 1 ci-dessus (aa⋆b⋆b) est local, mais son expression <em>n'est pas linéaire</em> (a et b y apparaissent plusieurs fois). Une expression non linéaire peut très bien engendrer un langage local — il faut alors repasser par la définition (P, D, N/F) pour le vérifier.
+    </div>
+
+    <h3>Pour aller plus loin : les langages k-testables</h3>
+    <p>Un langage local est en fait un cas particulier (k = 2) d'une notion plus générale : un langage est <strong>k-testable</strong> s'il suffit de regarder les facteurs de longueur k, ainsi que les préfixes et suffixes de longueur k − 1, pour décider de l'appartenance d'un mot. Un langage local est donc « 2-testable ». Ce n'est qu'une remarque culturelle du poly, pas un point à approfondir pour l'instant.</p>
+
+    <details class="quiz">
+      <summary>Exo flash — L = a⋆ba⋆ est-il local ? (indice : cherche P, D, N)</summary>
+      <div class="answer"><span class="tag">Correction</span>
+      <p>Oui. P = {a, b} (un mot peut commencer directement par b si k=0), D = {a, b} de même, et les facteurs interdits sont N = {bb} (deux b consécutifs sont impossibles puisqu'il n'y a qu'un seul b dans chaque mot). On vérifie que tout mot commençant et finissant par a ou b, sans facteur bb, est bien de la forme a<sup>i</sup>ba<sup>j</sup> avec i,j ≥ 0 — donc dans L. L est local. (Remarque : l'expression a⋆ba⋆ est linéaire, donc le théorème du raccourci donnait directement la réponse sans calcul !)</p></div>
+    </details>
+    <details class="quiz">
+      <summary>Exo flash — pourquoi le théorème « expression linéaire ⟹ langage local » ne s'applique-t-il pas directement à (aa | b)⋆ ?</summary>
+      <div class="answer"><span class="tag">Correction</span>
+      <p>Parce que la lettre a apparaît deux fois dans l'expression <span class="re">(aa | b)⋆</span> — elle n'est donc pas linéaire. Le théorème ne dit rien dans ce cas (ni que le langage est local, ni qu'il ne l'est pas) : il faudrait vérifier directement avec P, D, N.</p></div>
+    </details>
+  </section>
+</main>
+
+<footer>
+  Fiche construite à partir de « Chapitre 2 : Langages réguliers » (Joshua Peignier, Lycée Kléber, MPI), réorganisée autour des 7 compétences de l'annexe « ce qui est concrètement exigible ». Pour t'entraîner davantage : <a href="https://fortierq.github.io/automates/" target="_blank" rel="noopener">fortierq.github.io/automates</a> (onglet Langages → Expression).
+</footer>
+
+</body>
+</html>
