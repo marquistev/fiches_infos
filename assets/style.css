@@ -383,3 +383,27 @@
   cursor: default;
 }
 .chapter-card.placeholder:hover { transform: none; border-color: var(--border); }
+
+/* ---- Widget pas-à-pas ---- */
+.widget svg { width: 100%; max-width: 460px; height: auto; display: block; margin: 0 auto; }
+.wst circle { fill: var(--bg-elev); stroke: var(--text-dim); stroke-width: 2;
+  transition: fill .25s ease, stroke .25s ease, filter .25s ease; }
+.wst circle.in, .wst.on circle.in { fill: none; }
+.wst.on circle { fill: var(--accent-dim); stroke: var(--accent); filter: drop-shadow(0 0 6px var(--accent)); }
+.wst text, .wedge text { fill: var(--text); font-family: -apple-system, "Segoe UI", sans-serif; font-size: 14px; }
+.wedge path { stroke: var(--text-dim); fill: none; stroke-width: 1.6; }
+.wedge .ah { fill: var(--text-dim); stroke: none; }
+.wnote { font-size: 0.9rem; color: var(--text-dim); min-height: 3.2em; }
+.wbtn { display: flex; gap: 10px; }
+.wbtn button { font-family: -apple-system, "Segoe UI", sans-serif; font-weight: 600; font-size: 0.85rem;
+  color: var(--accent-text); background: var(--accent-dim); border: 1px solid transparent;
+  border-radius: 999px; padding: 7px 16px; cursor: pointer; transition: border-color .2s ease; }
+.wbtn button:hover:not(:disabled) { border-color: var(--accent); }
+.wbtn button:disabled { opacity: .4; cursor: default; }
+/* ---- Code (highlight.js) ---- */
+pre { margin: 0; overflow-x: auto; }
+pre code.hljs { background: transparent; padding: 0; }
+.hljs-keyword, .hljs-built_in { color: var(--accent-text); }
+.hljs-string { color: var(--good-text); }
+.hljs-type { color: var(--warn-text); }
+.hljs-comment { color: var(--text-dim); font-style: italic; }
