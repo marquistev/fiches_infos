@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chapitre 4 — Algorithmique des graphes (MPI)</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="top"><div class="top-inner">
+  <div class="top-title"><a href="../index.html" class="home-link">← Mes fiches</a> · Chapitre 4 — Algorithmique des graphes</div>
+  <nav class="chips">
+    <a href="#c1">1 · A*</a><a href="#c2">2 · Kruskal</a><a href="#c3">3 · DFS avec dates</a><a href="#c4">4 · Kosaraju-Sharir</a><a href="#c5">5 · Couplage</a>
+  </nav>
+</div></header>
+
+<main>
+<div class="hero">
+  <div class="eyebrow">MPI · Chapitre 4</div>
+  <h1>Algorithmique des graphes</h1>
+  <p class="lead">A*, arbre couvrant minimal, composantes fortement connexes, couplage maximum. Les notions marquées <span class="bonus-tag">complément</span> sont dans le cours mais pas dans l’annexe « exigible ».</p>
+</div>
+
+<section class="skill" id="c1">
+  <div class="skill-head"><span class="skill-num">1</span><h2>A* : plus court chemin avec heuristique</h2></div>
+  <div class="skill-goal">Savoir dérouler A*, et connaître terminaison / correction / complexité selon l’heuristique.</div>
+
+  <div class="card"><span class="def-label">Principe</span>
+    <p>A* = Dijkstra pour un couple <code>(s, t)</code>. La priorité d’un sommet <code>u</code> devient <code>d[u] + h(u)</code>, où <code>h</code> est une heuristique (estimation de la distance de <code>u</code> à <code>t</code>, avec <code>h(t) = 0</code>). On s’arrête dès que <code>t</code> est défilé. Il faut une file de priorité avec opération <code>Modifier</code>.</p>
+  </div>
+
+  <h3>Heuristiques</h3>
+  <div class="card"><span class="def-label">Admissible</span>
+    <p><code>h(v) ≤ </code> poids de tout chemin de <code>v</code> à <code>t</code> : <code>h</code> ne surestime jamais.</p>
+    <span class="def-label">Monotone</span>
+    <p>Pour toute arête <code>u → v</code> : <code>h(u) ≤ h(v) + w(u,v)</code> (inégalité triangulaire). <strong>Monotone + h(t)=0 ⇒ admissible</strong> (récurrence sur la longueur du chemin).</p>
+    <p>Exemple : points du plan, poids = distance euclidienne, <code>h(u) = δ(u,t)</code> (vol d’oiseau) est monotone.</p>
+  </div>
+
+  <h3>Garanties selon l’hypothèse</h3>
+  <div class="table-wrap"><table>
+    <tr><th>Heuristique</th><th>Terminaison</th><th>Correction</th><th>Sommets ré-enfilés ?</th><th>Complexité</th></tr>
+    <tr><td>quelconque (≥ 0)</td><td>oui</td><td>non garantie</td><td>possible</td><td>—</td></tr>
+    <tr><td>admissible</td><td>oui</td><td>oui</td><td>possible</td><td>exponentielle en pire cas</td></tr>
+    <tr><td>monotone</td><td>oui</td><td>oui</td><td>jamais</td><td><code>O((|S|+|A|) log|S|)</code></td></tr>
+  </table></div>
+  <div class="warn"><strong>Différence avec Dijkstra.</strong> Avec une heuristique seulement admissible, <code>d[u]</code> au moment du défilement peut encore être trop grand : <code>u</code> peut être ré-enfilé (c’est ce qui arrive dans l’exemple ci-dessous, avec <code>b</code>).</div>
+  <p>Complexité monotone : listes d’adjacence + tas binaire + tableau de positions. Avec des tas de Fibonacci : <code>O(|S| log|S| + |A|)</code> <span class="bonus-tag">complément</span>. Une heuristique ne change jamais la complexité en pire cas, elle coupe des branches en pratique.</p>
+  <p><span class="bonus-tag">complément</span> <em>Terminaison</em> : le vecteur <code>d</code> décroît strictement à chaque modification, et ne prend qu’un nombre fini de valeurs (sommes d’arêtes) ; on n’enfile qu’en cas de décroissance.</p>
+
+  <h3>Exemple pas à pas</h3>
+  <p>Graphe orienté : <code>s→a</code> (1), <code>s→b</code> (3), <code>a→b</code> (1), <code>b→t</code> (5). Heuristique : <code>h(a)=6</code>, <code>h(b)=3</code>, <code>h(t)=0</code> (admissible, non monotone : <code>h(a) &gt; h(b)+1</code>).</p>
+  <div class="card viz" id="astar">
+    <svg viewBox="0 0 380 200" role="img" aria-label="Graphe de l’exemple A*">
+      <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>
+      <g class="e" id="e-sa"><line x1="68" y1="92" x2="160" y2="49" marker-end="url(#ar)"/><text x="100" y="62">1</text></g>
+      <g class="e" id="e-sb"><line x1="68" y1="108" x2="160" y2="151" marker-end="url(#ar)"/><text x="100" y="146">3</text></g>
+      <g class="e" id="e-ab"><line x1="180" y1="60" x2="180" y2="138" marker-end="url(#ar)"/><text x="194" y="104">1</text></g>
+      <g class="e" id="e-bt"><line x1="200" y1="160" x2="308" y2="160" marker-end="url(#ar)"/><text x="254" y="150">5</text></g>
+      <g class="n" id="n-s"><circle cx="50" cy="100" r="20"/><text x="50" y="100">s</text></g>
+      <g class="n" id="n-a"><circle cx="180" cy="40" r="20"/><text x="180" y="40">a</text></g>
+      <g class="n" id="n-b"><circle cx="180" cy="160" r="20"/><text x="180" y="160">b</text></g>
+      <g class="n" id="n-t"><circle cx="330" cy="160" r="20"/><text x="330" y="160">t</text></g>
+    </svg>
+    <div class="table-wrap"><table><tr><th>d[s]</th><th>d[a]</th><th>d[b]</th><th>d[t]</th><th>File (sommet, priorité)</th></tr><tr id="astar-row"></tr></table></div>
+    <p id="astar-cmt"></p>
+    <div class="ctrl"><button id="astar-prev">Précédent</button><button id="astar-next">Suivant</button><span id="astar-n"></span></div>
+  </div>
+
+  <details class="quiz"><summary>Pourquoi A* avec h ≡ 0 est-il exactement Dijkstra ?</summary>
+    <div class="answer"><span class="tag">Réponse</span><p><code>h ≡ 0</code> est monotone (donc admissible) : la priorité vaut <code>d[u]</code>, c’est Dijkstra avec arrêt anticipé en <code>t</code>.</p></div></details>
+  <details class="quiz"><summary>Que se passe-t-il si h surestime la distance ?</summary>
+    <div class="answer"><span class="tag">Réponse</span><p>A* peut défiler <code>t</code> trop tôt avec un chemin non optimal : la correction n’est plus garantie.</p></div></details>
+</section>
+
+<section class="skill" id="c2">
+  <div class="skill-head"><span class="skill-num">2</span><h2>Arbre couvrant minimal : Kruskal</h2></div>
+  <div class="skill-goal">Appliquer Kruskal à la main, connaître Unir-Trouver et la complexité.</div>
+
+  <div class="card"><span class="def-label">Définitions</span>
+    <p><strong>Arbre couvrant</strong> d’un graphe connexe : ensemble d’arêtes <code>T ⊆ A</code> tel que <code>(S, T)</code> est connexe et acyclique (donc <code>|S|−1</code> arêtes). Son <strong>poids</strong> est la somme des poids de ses arêtes. Un <strong>ACM</strong> (graphe non orienté, pondéré, connexe) est de poids minimum. Il n’est <strong>pas unique</strong> (ex. triangle de poids 1).</p>
+  </div>
+  <p><span class="bonus-tag">complément</span> Algorithme de Prim (files de priorité, pas au programme) : même complexité que Kruskal avec des tas binaires, meilleur avec des tas de Fibonacci.</p>
+
+  <h3>Algorithme (glouton)</h3>
+  <div class="card"><ol>
+    <li>Trier les arêtes par poids croissant ; <code>T = ∅</code> ; <code>P = Init(|S|)</code> (Unir-Trouver).</li>
+    <li>Pour chaque arête <code>(u,v)</code> : si <code>Trouver(P,u) ≠ Trouver(P,v)</code>, ajouter l’arête à <code>T</code> et <code>Unir(P,u,v)</code> ; sinon la rejeter (elle ferait un cycle).</li>
+  </ol></div>
+  <p><strong>Complexité</strong> : <code>O(|A| log|S|)</code> avec Unir-Trouver (compression de chemin + union par rang) ; le tri domine.</p>
+
+  <h3>Exemple en deux étapes clés</h3>
+  <p>Arêtes triées : <code>ab(1) cd(1) bc(2) ac(3) bd(4)</code>. Traits épais = arêtes retenues, pointillés = pas encore examinées ou rejetées.</p>
+<pre class="mermaid">
+graph LR
+a((a)) ---|1| b((b))
+c((c)) ---|1| d((d))
+b ---|2| c
+a ---|3| c
+b ---|4| d
+linkStyle 0,1 stroke:#7a4cff,stroke-width:4px
+linkStyle 2,3,4 stroke-dasharray:4
+</pre>
+<pre class="mermaid">
+graph LR
+a((a)) ---|1| b((b))
+c((c)) ---|1| d((d))
+b ---|2| c
+a ---|3| c
+b ---|4| d
+linkStyle 0,1,2 stroke:#7a4cff,stroke-width:4px
+linkStyle 3,4 stroke-dasharray:4
+</pre>
+  <p>Après <code>bc</code> : tout est connecté, <code>ac</code> et <code>bd</code> sont rejetées. Poids de l’ACM = 4.</p>
+
+  <h3>Implémentation OCaml</h3>
+  <pre><code class="language-ocaml">let rec trouver p x =
+  if p.(x) = x then x else (p.(x) &lt;- trouver p p.(x); p.(x))
+
+let unir p rang x y =
+  let rx, ry = trouver p x, trouver p y in
+  if rang.(rx) &lt; rang.(ry) then p.(rx) &lt;- ry
+  else (p.(ry) &lt;- rx; if rang.(rx) = rang.(ry) then rang.(rx) &lt;- rang.(rx) + 1)
+
+(* aretes : (poids, u, v) list *)
+let kruskal n aretes =
+  let p = Array.init n (fun i -&gt; i) and rang = Array.make n 0 in
+  List.fold_left (fun t (w, u, v) -&gt;
+    if trouver p u &lt;&gt; trouver p v then (unir p rang u v; (u, v, w) :: t) else t)
+    [] (List.sort compare aretes)</code></pre>
+  <p><span class="bonus-tag">complément</span> <em>Correction</em> : invariant « il existe un ACM contenant <code>T</code> et aucune arête rejetée » ; si <code>(u,v)</code> est ajoutée mais absente de cet ACM <code>M</code>, on échange avec une arête non encore vue du cycle formé (poids ≥), ce qui donne un ACM de poids ≤.</p>
+  <details class="quiz"><summary>Pourquoi peut-on arrêter Kruskal après |S|−1 arêtes ?</summary>
+    <div class="answer"><span class="tag">Réponse</span><p>Un arbre couvrant a exactement <code>|S|−1</code> arêtes ; au-delà, toute arête créerait un cycle.</p></div></details>
+</section>
+
+<section class="skill" id="c3">
+  <div class="skill-head"><span class="skill-num">3</span><h2>Parcours en profondeur avec dates</h2></div>
+  <div class="skill-goal">Maîtriser le DFS daté et récupérer les sommets dans l’ordre des dates avec une pile ou une file.</div>
+
+  <div class="card"><span class="def-label">Principe</span>
+    <p>Un compteur <code>temps</code> donne à chaque sommet une date de début <code>d[s]</code> (entrée dans <code>Visiter</code>) et de fin <code>f[s]</code>. Trois états : <code>Non-Vu</code> (blanc), <code>En-Exploration</code> (gris), <code>Vu</code> (noir). <code>parent</code> décrit la forêt du parcours (racine = son propre parent).</p>
+    <p><strong>Complexité</strong> : <code>O(|S|+|A|)</code> (listes d’adjacence) : <code>Visiter</code> est appelée exactement une fois par sommet, et chaque arête est examinée une fois.</p>
+  </div>
+  <div class="good"><strong>Astuce exigible.</strong> Pas besoin des tableaux <code>d</code> et <code>f</code> : si on <em>empile</em> chaque sommet à la <em>fin</em> de <code>Visiter</code>, on dépile par dates de fin <strong>décroissantes</strong> ; avec une file, par dates de fin croissantes. Même chose au début de <code>Visiter</code> pour les dates de début. (Utilisé pour le tri topologique et Kosaraju.)</div>
+
+  <h3>Résultats de structure <span class="bonus-tag">complément</span></h3>
+  <ul>
+    <li><strong>Parenthésage</strong> : pour deux sommets, les intervalles <code>[d,f]</code> sont soit disjoints, soit emboîtés (et alors il y a une relation de descendance). <code>v</code> descendant strict de <code>u</code> ⇔ <code>d[u] &lt; d[v] &lt; f[v] &lt; f[u]</code>.</li>
+    <li><strong>Chemin blanc</strong> : <code>v</code> est descendant de <code>u</code> ⇔ il existe, à l’instant <code>d[u]</code>, un chemin de <code>u</code> à <code>v</code> n’utilisant que des sommets <code>Non-Vu</code>.</li>
+  </ul>
+  <details class="quiz"><summary>Si u a un intervalle [3, 10] et v un intervalle [5, 8], quelle relation ?</summary>
+    <div class="answer"><span class="tag">Réponse</span><p>Intervalles emboîtés : <code>v</code> est un descendant de <code>u</code> dans la forêt du DFS.</p></div></details>
+</section>
+
+<section class="skill" id="c4">
+  <div class="skill-head"><span class="skill-num">4</span><h2>Composantes fortement connexes : Kosaraju-Sharir</h2></div>
+  <div class="skill-goal">Dérouler Kosaraju-Sharir à la main et en connaître le principe de correction.</div>
+
+  <div class="card"><span class="def-label">Définition</span>
+    <p>Une <strong>composante fortement connexe</strong> (CFC) est un ensemble de sommets maximal pour l’inclusion tel que, pour tous <code>s, t</code> de l’ensemble, <code>s →* t</code> (donc <code>t →* s</code>). Être dans la même CFC est une relation d’équivalence.</p>
+    <p>Le <strong>graphe transposé</strong> <code>G<sup>T</sup></code> inverse toutes les arêtes.</p>
+  </div>
+
+  <h3>Algorithme</h3>
+  <div class="card"><ol>
+    <li>DFS sur <code>G</code> (ordre arbitraire) en empilant chaque sommet à la fin de sa visite.</li>
+    <li>Calculer <code>G<sup>T</sup></code>.</li>
+    <li>DFS sur <code>G<sup>T</sup></code> en lançant les parcours dans l’ordre de dépilement (dates de fin <strong>décroissantes</strong>). Chaque arbre obtenu est une CFC.</li>
+  </ol><p><strong>Complexité</strong> : <code>O(|S|+|A|)</code> (listes d’adjacence).</p></div>
+
+  <h3>Exemple</h3>
+<pre class="mermaid">
+graph LR
+subgraph C1[CFC 1]
+a((a)) --> b((b)) --> c((c)) --> a
+end
+subgraph C2[CFC 2]
+d((d)) --> e((e)) --> d
+end
+c --> d
+</pre>
+  <p>Arête <code>c → d</code> de C1 vers C2. Dans <code>G</code>, <code>f(C1) &gt; f(C2)</code> quel que soit l’ordre de départ. Dans <code>G<sup>T</sup></code>, on part donc de C1 : l’arête transposée <code>d → c</code> ne permet pas d’en sortir, l’arbre de C1 s’arrête à C1 ; puis C2 est visitée seule.</p>
+
+  <h3>Implémentation OCaml</h3>
+  <pre><code class="language-ocaml">let dfs_pile g ordre =
+  let n = Array.length g in
+  let vu = Array.make n false and parent = Array.init n (fun i -&gt; i) in
+  let pile = ref [] in
+  let rec visiter s =
+    vu.(s) &lt;- true;
+    List.iter (fun t -&gt; if not vu.(t) then (parent.(t) &lt;- s; visiter t)) g.(s);
+    pile := s :: !pile              (* fin de visite : on empile *)
+  in
+  List.iter (fun s -&gt; if not vu.(s) then visiter s) ordre;
+  !pile, parent
+
+let transpose g =
+  let gt = Array.make (Array.length g) [] in
+  Array.iteri (fun u vs -&gt; List.iter (fun v -&gt; gt.(v) &lt;- u :: gt.(v)) vs) g;
+  gt
+
+let kosaraju g =
+  let p, _ = dfs_pile g (List.init (Array.length g) (fun i -&gt; i)) in
+  snd (dfs_pile (transpose g) p)    (* racines : parent.(i) = i *)</code></pre>
+
+  <div class="card"><span class="def-label">Idée de la correction</span>
+    <p><span class="bonus-tag">complément</span> Si une arête va de la CFC <code>C</code> vers <code>C'</code>, alors <code>f(C) &gt; f(C')</code> (avec <code>f(U) = max f[s]</code>). Dans <code>G<sup>T</sup></code>, les CFC sont donc explorées en suivant l’ordre topologique inverse : une visite ne peut pas « fuir » vers une CFC non encore traitée. Appuyé sur le lemme du chemin à sens unique et le théorème des descendants.</p>
+  </div>
+
+  <h3>Application : 2-SAT <span class="bonus-tag">complément</span></h3>
+  <p>À retenir seulement que l’application existe. Graphe d’implication : un sommet par littéral, chaque clause <code>(l₁ ∨ l₂)</code> donne les arêtes <code>¬l₁ → l₂</code> et <code>¬l₂ → l₁</code>. La formule 2-CNF est <strong>satisfiable ⇔ aucun littéral n’est dans la même CFC que son opposé</strong>. D’où une résolution en temps polynomial (linéaire).</p>
+  <details class="quiz"><summary>Que renvoie le second DFS si on le lance dans un ordre arbitraire ?</summary>
+    <div class="answer"><span class="tag">Réponse</span><p>Des arbres qui peuvent déborder sur d’autres CFC : l’ordre des dates de fin décroissantes est indispensable.</p></div></details>
+</section>
+
+<section class="skill" id="c5">
+  <div class="skill-head"><span class="skill-num">5</span><h2>Couplage de cardinal maximum</h2></div>
+  <div class="skill-goal">Connaître le lemme de Berge (au moins) et le principe de l’algorithme par chemins augmentants.</div>
+
+  <div class="card"><span class="def-label">Définitions</span>
+    <ul>
+      <li><strong>Graphe biparti</strong> : les sommets se partitionnent en <code>S₁ ⊎ S₂</code>, toute arête relie <code>S₁</code> à <code>S₂</code>.</li>
+      <li><strong>Couplage</strong> : <code>M ⊆ A</code> avec au plus une arête de <code>M</code> par sommet. <strong>Maximum</strong> : cardinal le plus grand possible (non unique).</li>
+      <li><strong>Sommet libre</strong> : extrémité d’aucune arête de <code>M</code>.</li>
+      <li><strong>Chemin augmentant</strong> : de sommet libre à sommet libre, alternant arêtes hors <code>M</code> / dans <code>M</code> (une seule arête hors <code>M</code> entre deux libres est possible).</li>
+    </ul>
+  </div>
+  <div class="warn"><strong>Piège.</strong> Maximal pour l’inclusion (on ne peut plus ajouter d’arête) ≠ maximum en cardinal.</div>
+
+  <div class="card"><span class="def-label">Lemme de Berge (exigible)</span>
+    <p>Un couplage <code>M</code> est maximum ⇔ il n’existe aucun chemin augmentant pour <code>M</code>. Si <code>P</code> est augmentant, <code>M Δ P</code> est un couplage de taille <code>|M|+1</code> (<code>Δ</code> = différence symétrique).</p>
+  </div>
+
+  <h3>Algorithme</h3>
+  <div class="card"><ol>
+    <li><code>M = ∅</code>.</li>
+    <li>Pour chaque <code>s ∈ S₁</code> (ordre arbitraire) : DFS depuis <code>s</code> pour chercher un chemin augmentant. En <code>x ∈ S₁</code> : essayer chaque voisin <code>y</code> non encore examiné (tableau <code>vus</code>). En <code>y ∈ S₂</code> : si <code>y</code> est libre, chemin trouvé ; sinon suivre l’arête de <code>M</code> vers son partenaire.</li>
+    <li>Si un chemin <code>P</code> est trouvé : <code>M ← M Δ P</code>.</li>
+  </ol><p>Il suffit de partir de <code>S₁</code> une seule fois par sommet. <strong>Complexité</strong> : <code>O(|A|·|S|)</code> (un DFS en <code>O(|A|)</code> par sommet de <code>S₁</code>).</p></div>
+
+  <h3>Exemple</h3>
+<pre class="mermaid">
+graph LR
+x((x)) --- n1((1))
+x --- n2((2))
+y((y)) --- n1
+z((z)) --- n2
+z --- n3((3))
+linkStyle 0,3 stroke:#7a4cff,stroke-width:4px
+</pre>
+<pre class="mermaid">
+graph LR
+x((x)) --- n1((1))
+x --- n2((2))
+y((y)) --- n1
+z((z)) --- n2
+z --- n3((3))
+linkStyle 1,2,4 stroke:#7a4cff,stroke-width:4px
+</pre>
+  <p>Premier couplage <code>{x–1, z–2}</code> (maximal, 2 arêtes). Libres : <code>y</code> et <code>3</code>. Le chemin augmentant <code>y – 1 – x – 2 – z – 3</code> donne, par différence symétrique, le couplage maximum <code>{y–1, x–2, z–3}</code> (cardinal 3, second schéma).</p>
+
+  <h3>Hopcroft-Karp <span class="bonus-tag">hors programme</span></h3>
+  <p>Idée : à chaque phase, un BFS depuis les sommets libres de <code>S₁</code> donne la longueur minimale des chemins augmentants, puis on en trouve un ensemble maximal de chemins <em>disjoints</em> de cette longueur, qu’on applique tous d’un coup. <em>Note</em> : le cours indique <code>O(|A| log|S|)</code> ; la borne classique de cet algorithme est <code>O(|A|√|S|)</code> — à vérifier avec ton cours.</p>
+  <details class="quiz"><summary>Un couplage maximal est-il toujours maximum ?</summary>
+    <div class="answer"><span class="tag">Réponse</span><p>Non, voir l’exemple : <code>{x–1, z–2}</code> est maximal mais le maximum vaut 3. Berge : il reste le chemin augmentant <code>y–1–x–2–z–3</code>.</p></div></details>
+</section>
+
+<div class="checklist">
+  <h2>Checklist de révision</h2>
+  <label><input type="checkbox"> Dérouler A* à la main, avec réinsertion dans la file</label>
+  <label><input type="checkbox"> Admissible vs monotone, et ce que chacune garantit</label>
+  <label><input type="checkbox"> Kruskal à la main + Unir-Trouver + complexité</label>
+  <label><input type="checkbox"> DFS avec dates, pile des fins de visite</label>
+  <label><input type="checkbox"> Kosaraju-Sharir : étapes, rôle du transposé</label>
+  <label><input type="checkbox"> Lemme de Berge et algorithme de couplage</label>
+</div>
+</main>
+
+<footer>Fiche tirée du cours de Joshua Peignier (Lycée Kléber), MPI — chapitre 4. <a href="../index.html">Retour à l’accueil</a></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ocaml.min.js"></script>
+<script>
+mermaid.initialize({ startOnLoad: true, theme: matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default' });
+hljs.highlightAll();
+
+(function () {
+  var T = [
+    { a: null, d: [0, '∞', '∞', '∞'], f: '(s, 0)', e: [], c: 'Initialisation : d[s] = 0, on enfile s avec la priorité 0.' },
+    { a: 's', d: [0, 1, 3, '∞'], f: '(a, 7) (b, 6)', e: ['sa', 'sb'], c: 'On défile s. d[a] = 1 → priorité 1 + 6 = 7 ; d[b] = 3 → priorité 3 + 3 = 6.' },
+    { a: 'b', d: [0, 1, 3, 8], f: '(a, 7) (t, 8)', e: ['bt'], c: 'On défile b (priorité 6). d[t] = 3 + 5 = 8, priorité 8 + 0 = 8.' },
+    { a: 'a', d: [0, 1, 2, 8], f: '(b, 5) (t, 8)', e: ['ab'], c: 'On défile a. d[a] + 1 = 2 < d[b] = 3 : on améliore d[b] et on réinsère b avec la priorité 2 + 3 = 5.' },
+    { a: 'b', d: [0, 1, 2, 7], f: '(t, 7)', e: ['bt'], c: 'On redéfile b : d[t] = 2 + 5 = 7, la priorité de t passe à 7.' },
+    { a: 't', d: [0, 1, 2, 7], f: '(vide)', e: ['sa', 'ab', 'bt'], p: ['s', 'a', 'b', 't'], c: 'On défile t : fini. Plus court chemin s → a → b → t, de poids 7.' }
+  ];
+  var i = 0, root = document.getElementById('astar');
+  function $(id) { return document.getElementById(id); }
+  function show() {
+    var st = T[i];
+    root.querySelectorAll('.n').forEach(function (n) {
+      var id = n.id.slice(2);
+      n.classList.toggle('active', id === st.a);
+      n.classList.toggle('done', !!st.p && st.p.indexOf(id) >= 0 && id !== st.a);
+    });
+    root.querySelectorAll('.e').forEach(function (e) { e.classList.toggle('on', st.e.indexOf(e.id.slice(2)) >= 0); });
+    $('astar-row').innerHTML = st.d.map(function (v) { return '<td>' + v + '</td>'; }).join('') + '<td>' + st.f + '</td>';
+    $('astar-cmt').textContent = st.c;
+    $('astar-n').textContent = 'Étape ' + i + ' / ' + (T.length - 1);
+    $('astar-prev').disabled = i === 0;
+    $('astar-next').disabled = i === T.length - 1;
+  }
+  $('astar-prev').onclick = function () { if (i > 0) { i--; show(); } };
+  $('astar-next').onclick = function () { if (i < T.length - 1) { i++; show(); } };
+  show();
+})();
+</script>
+</body>
+</html>
