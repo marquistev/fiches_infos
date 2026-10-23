@@ -407,3 +407,26 @@ pre code.hljs { background: transparent; padding: 0; }
 .hljs-string { color: var(--good-text); }
 .hljs-type { color: var(--warn-text); }
 .hljs-comment { color: var(--text-dim); font-style: italic; }
+
+.viz svg { width: 100%; max-width: 420px; display: block; margin: 0 auto; color: var(--text-dim); }
+.viz .n circle { fill: var(--bg-elev); stroke: var(--border); stroke-width: 2;
+  transition: fill .25s ease, stroke .25s ease, stroke-width .25s ease; }
+.viz .n text { fill: var(--text); font: 600 15px -apple-system, "Segoe UI", sans-serif; text-anchor: middle; dominant-baseline: central; }
+.viz .n.active circle { fill: var(--accent-dim); stroke: var(--accent); stroke-width: 5; }
+.viz .n.done circle { fill: var(--good-bg); stroke: var(--good-border); }
+.viz .e line { stroke: currentColor; stroke-width: 1.6; transition: stroke .25s ease, stroke-width .25s ease; }
+.viz .e text { fill: var(--text-dim); font: 12px -apple-system, "Segoe UI", sans-serif; text-anchor: middle; }
+.viz .e.on line { stroke: var(--accent); stroke-width: 3.5; }
+.viz .ctrl { display: flex; gap: 8px; align-items: center; margin-top: 10px;
+  font-family: -apple-system, "Segoe UI", sans-serif; font-size: .85rem; color: var(--text-dim); }
+.viz button { font: 600 .85rem -apple-system, "Segoe UI", sans-serif; padding: 6px 14px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--accent-dim); color: var(--accent-text); cursor: pointer; }
+.viz button:disabled { opacity: .4; cursor: default; }
+pre.mermaid { background: transparent; text-align: center; margin: 10px 0; }
+pre code.hljs, pre code.language-ocaml { display: block; overflow-x: auto; background: var(--code-bg);
+  padding: 12px 14px; border-radius: 10px; font-size: .85rem; line-height: 1.5; }
+.hljs-keyword, .hljs-built_in { color: var(--accent-text); font-weight: 600; }
+.hljs-comment { color: var(--text-dim); font-style: italic; }
+.hljs-number, .hljs-literal, .hljs-type { color: var(--good-text); }
+.hljs-string { color: var(--warn-text); }
+@media (prefers-reduced-motion: reduce) { .viz * { transition: none !important; } }
