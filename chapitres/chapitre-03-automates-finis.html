@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MPI – Ch. 3 : Automates finis</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.3/mermaid.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ocaml.min.js"></script>
+</head>
+<body>
+<header class="top"><div class="top-inner">
+  <div class="top-title"><a href="../index.html" class="home-link">← Mes fiches</a> · Ch. 3 – Automates finis</div>
+  <nav class="chips">
+    <a href="#c1">1 · Bases</a><a href="#c2">2 · Émonder / compléter</a><a href="#c3">3 · Déterminiser</a><a href="#c4">4 · ε-transitions</a><a href="#c5">5 · Stabilité</a><a href="#c6">6 · Kleene</a><a href="#c7">7 · Lemme de l’étoile</a>
+  </nav>
+</div></header>
+
+<main>
+<div class="hero">
+  <div class="eyebrow">MPI · Chapitre 3</div>
+  <h1>Automates finis</h1>
+  <p class="lead">Un automate est un graphe orienté étiqueté par des lettres. Il reconnaît exactement les langages réguliers. Les notions marquées <span class="bonus-tag">complément</span> ne sont pas dans l’annexe « exigible » : utiles, mais secondaires.</p>
+</div>
+
+<section class="skill" id="c1">
+  <div class="skill-head"><span class="skill-num">1</span><h2>Automates, chemins, langage reconnu</h2></div>
+  <div class="skill-goal">Savoir lire un automate, décider si un mot est accepté, décrire L(A).</div>
+  <div class="card"><span class="def-label">Définition</span>
+    <p>Automate fini : <code>A = (Q, Σ, I, F, δ)</code> avec <code>Q</code> fini (états), <code>I ⊆ Q</code> initiaux, <code>F ⊆ Q</code> acceptants, <code>δ : Q × Σ → P(Q)</code>. On note <code>q₁ –a→ q₂</code> si <code>q₂ ∈ δ(q₁, a)</code>.</p>
+    <p><strong>Chemin</strong> : <code>q₀ –a₁→ q₁ … –aₙ→ qₙ</code>, d’étiquette <code>a₁…aₙ</code> (n = 0 : chemin vide, étiquette ε). <strong>Mot accepté</strong> : il existe un chemin d’étiquette u de <code>q₀ ∈ I</code> vers <code>qₙ ∈ F</code>. <strong>L(A)</strong> = ensemble des mots acceptés.</p>
+    <p>Extension : <code>δ*(q, ε) = {q}</code> et <code>δ*(q, ua) = ⋃_{q′∈δ*(q,u)} δ(q′, a)</code>. Alors <code>δ*(q,u)</code> = états atteignables en lisant u depuis q.</p>
+  </div>
+  <p>Exemple fil rouge A : mots qui <strong>finissent par ab</strong> (états 1, 2, 3 ; initial 1, final 3).</p>
+  <pre class="mermaid">
+stateDiagram-v2
+  direction LR
+  [*] --> q1
+  q1 --> q1: a, b
+  q1 --> q2: a
+  q2 --> q3: b
+  q3 --> [*]
+  </pre>
+  <div class="warn"><strong>Deux façons de rejeter un mot.</strong> Soit il existe des chemins d’étiquette u depuis un état initial mais aucun n’est acceptant ; soit la lecture est <em>bloquante</em> (aucun chemin). Il peut y avoir plusieurs chemins acceptants pour un même mot.</div>
+  <details class="quiz"><summary>Dans A, le mot « aab » est-il accepté ? Et « abb » ?</summary>
+    <div class="answer"><span class="tag">Réponse</span><br>« aab » : oui (1 –a→ 1 –a→ 2 –b→ 3). « abb » : non, après « ab » on peut être en 1 ou 3, mais le b suivant ne mène à 3 depuis aucun d’eux.</div></details>
+</section>
+
+<section class="skill" id="c2">
+  <div class="skill-head"><span class="skill-num">2</span><h2>Automates émondés et complets</h2></div>
+  <div class="skill-goal">Émonder et compléter à la main ; savoir qu’on peut toujours s’y ramener.</div>
+  <div class="card"><span class="def-label">Émondé</span>
+    <p>État <strong>accessible</strong> : atteint depuis un état initial. <strong>Co-accessible</strong> : on peut atteindre un état final depuis lui. <strong>Utile</strong> = les deux. L’émondé ne garde que les états utiles (et les transitions entre eux) : <code>L(A) = L(A′)</code>. Calcul en temps linéaire en le nombre de transitions.</p>
+  </div>
+  <div class="card"><span class="def-label">Complet</span>
+    <p>Complet : <code>δ(q, a) ≠ ∅</code> pour tout q, a. Aucune lecture bloquante : <code>δ*(q,u) ≠ ∅</code>. <strong>Pour compléter</strong> : ajouter un état <em>puits</em>, rediriger vers lui toutes les transitions manquantes, et ajouter une boucle sur toutes les lettres sur le puits.</p>
+  </div>
+  <p>Modéliser un système sans mémoire (portique de métro, digicode, distributeur) : états = situations, lettres = actions, langage = suites d’actions valides. <span class="bonus-tag">complément</span></p>
+  <details class="quiz"><summary>Pourquoi émonder ne change-t-il pas le langage ?</summary>
+    <div class="answer"><span class="tag">Réponse</span><br>Tout état d’un chemin acceptant est accessible (via le début du chemin) et co-accessible (via la fin) : le chemin survit à l’émondage.</div></details>
+</section>
+
+<section class="skill" id="c3">
+  <div class="skill-head"><span class="skill-num">3</span><h2>Déterminisation</h2></div>
+  <div class="skill-goal">Appliquer l’algorithme à la main ; savoir que tout langage reconnu l’est par un automate déterministe.</div>
+  <div class="card"><span class="def-label">Déterministe</span>
+    <p>Un seul état initial et <code>|δ(q,a)| ≤ 1</code> pour tout (q, a). Conséquences : au plus un chemin par mot depuis q ; <strong>déterministe + complet</strong> ⇒ exactement un chemin. Un automate avec ε-transitions n’est jamais déterministe. (Certains sujets appellent « non-déterministe » tout automate : suivre la convention du sujet.)</p>
+  </div>
+  <div class="card"><span class="def-label">Méthode (super-états)</span>
+    <ol>
+      <li>Super-état initial : <code>I</code>.</li>
+      <li>Tant qu’un super-état P n’est pas traité, pour chaque lettre a : <code>R = ⋃_{q∈P} δ(q, a)</code>, créer <code>P –a→ R</code> si R ≠ ∅.</li>
+      <li>R est acceptant s’il contient un état de F.</li>
+    </ol>
+    <p>On ne construit que les super-états atteints (émondé du déterminisé). Preuve : <code>Δ*(I,u) = ⋃_{q∈I} δ*(q,u)</code>, par récurrence sur |u|.</p>
+  </div>
+  <h3>Sur A, étape par étape</h3>
+  <p>Étape 1 : depuis {1}, la lettre a donne {1,2} et b donne {1}.</p>
+  <pre class="mermaid">
+stateDiagram-v2
+  direction LR
+  state "{1}" as s1
+  state "{1,2}" as s12
+  [*] --> s1
+  s1 --> s1: b
+  s1 --> s12: a
+  </pre>
+  <p>Étape 2 : on traite {1,2} (a → {1,2}, b → {1,3} acceptant), puis {1,3} (a → {1,2}, b → {1}). Fini.</p>
+  <pre class="mermaid">
+stateDiagram-v2
+  direction LR
+  state "{1}" as s1
+  state "{1,2}" as s12
+  state "{1,3}" as s13
+  [*] --> s1
+  s1 --> s1: b
+  s1 --> s12: a
+  s12 --> s12: a
+  s12 --> s13: b
+  s13 --> s12: a
+  s13 --> s1: b
+  s13 --> [*]
+  </pre>
+  <h3>Lecture pas à pas : l’ensemble d’états courant</h3>
+  <div class="card widget" id="w1">
+    <svg viewBox="0 0 440 120" role="img" aria-label="Automate A">
+      <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" class="ah"/></marker></defs>
+      <g class="wedge">
+        <path d="M8 62 H44" marker-end="url(#ar)"/>
+        <path d="M60 40 C42 0, 100 0, 82 40" marker-end="url(#ar)"/><text x="71" y="12" text-anchor="middle">a, b</text>
+        <path d="M96 62 H194" marker-end="url(#ar)"/><text x="145" y="53" text-anchor="middle">a</text>
+        <path d="M246 62 H344" marker-end="url(#ar)"/><text x="295" y="53" text-anchor="middle">b</text>
+      </g>
+      <g class="wst" id="n1"><circle cx="71" cy="62" r="25"/><text x="71" y="67" text-anchor="middle">1</text></g>
+      <g class="wst" id="n2"><circle cx="221" cy="62" r="25"/><text x="221" y="67" text-anchor="middle">2</text></g>
+      <g class="wst" id="n3"><circle cx="371" cy="62" r="25"/><circle class="in" cx="371" cy="62" r="19"/><text x="371" y="67" text-anchor="middle">3</text></g>
+    </svg>
+    <p id="wtxt" class="wnote"></p>
+    <div class="wbtn"><button id="wprev" type="button">← Précédent</button><button id="wnext" type="button">Suivant →</button></div>
+  </div>
+  <h3>Implémentation OCaml (déterminisation « à la volée »)</h3>
+  <div class="card"><pre><code class="language-ocaml">type nfa = { init : int list; final : int list; delta : (int * char * int) list }
+
+(* ensemble d'états atteint depuis ens en lisant c *)
+let step a ens c =
+  List.sort_uniq compare
+    (List.filter_map
+       (fun (p, x, q) -> if x = c &amp;&amp; List.mem p ens then Some q else None)
+       a.delta)
+
+let accepte a mot =
+  let ens = ref (List.sort_uniq compare a.init) in
+  String.iter (fun c -> ens := step a !ens c) mot;
+  List.exists (fun q -> List.mem q a.final) !ens</code></pre></div>
+  <div class="warn"><strong>Piège.</strong> Un super-état est acceptant dès qu’il <em>contient</em> un état final (pas « tous »). Le déterminisé a jusqu’à 2<sup>n</sup> états en théorie.</div>
+  <details class="quiz"><summary>Que représente le super-état {1,3} ?</summary>
+    <div class="answer"><span class="tag">Réponse</span><br>Après avoir lu un mot u, on peut être en 1 ou en 3 dans A (selon le chemin choisi). Il est acceptant car 3 ∈ F.</div></details>
+</section>
+
+<section class="skill" id="c4">
+  <div class="skill-head"><span class="skill-num">4</span><h2>ε-transitions</h2></div>
+  <div class="skill-goal">Éliminer les ε-transitions à la main.</div>
+  <div class="card"><span class="def-label">Définition</span>
+    <p>Avec ε-transitions : <code>δ : Q × (Σ ∪ {ε}) → P(Q)</code>. Une transition <code>q₁ –ε→ q₂</code> se franchit sans lire de lettre. Tout tel automate est équivalent à un automate sans ε-transition.</p>
+  </div>
+  <div class="card"><span class="def-label">Algorithme d’élimination</span>
+    <ol>
+      <li><strong>ε-clôture</strong> : s’il existe un ε-chemin <code>q₁ –ε→* q₂</code>, ajouter <code>q₁ –ε→ q₂</code>.</li>
+      <li>Pour chaque <code>q₁ –ε→ q₂</code> : pour toute <code>q₂ –a→ q₃</code>, ajouter <code>q₁ –a→ q₃</code> ; si q₂ est final, q₁ devient final ; si q₁ est initial, q₂ devient initial ; puis supprimer l’ε-transition.</li>
+    </ol>
+  </div>
+  <p>Automates étendus (transitions étiquetées par des expressions régulières) : outil intermédiaire pour la section 6, non étudiés en soi. <span class="bonus-tag">complément</span></p>
+  <details class="quiz"><summary>Pourquoi faire d’abord la clôture ?</summary>
+    <div class="answer"><span class="tag">Réponse</span><br>Pour qu’un chemin à plusieurs ε consécutifs soit remplacé par une seule ε-transition ; l’élimination ε par ε reste alors correcte.</div></details>
+</section>
+
+<section class="skill" id="c5">
+  <div class="skill-head"><span class="skill-num">5</span><h2>Stabilité : union, complémentaire, intersection</h2></div>
+  <div class="skill-goal">Construire l’automate de L₁ ∪ L₂, du complémentaire, et de L₁ ∩ L₂.</div>
+  <div class="card"><span class="def-label">Union</span>
+    <p>Juxtaposer A₁, …, Aₙ (états renommés pour éviter les doublons) : unions des Qᵢ, Iᵢ, Fᵢ, δᵢ. Résultat non-déterministe et non connexe.</p></div>
+  <div class="card"><span class="def-label">Complémentaire</span>
+    <p>(1) <strong>déterminiser</strong>, (2) <strong>compléter</strong>, (3) échanger états finaux et non finaux : <code>Aᶜ = (Q, Σ, {q₀}, Q \ F, δ)</code>. Reconnaît <code>Σ* \ L(A)</code>.</p></div>
+  <div class="warn"><strong>Piège.</strong> Inverser les finaux directement est faux si A est non-déterministe ou incomplet (un mot peut avoir à la fois un chemin acceptant et un non acceptant, ou n’en avoir aucun).</div>
+  <div class="card"><span class="def-label">Automate produit</span>
+    <p><code>A× = (Q₁×Q₂, Σ, I₁×I₂, F₁×F₂, δ)</code> avec <code>(q₁,q₂) –a→ (q₁′,q₂′)</code> ssi <code>q₁ –a→ q₁′</code> dans A₁ et <code>q₂ –a→ q₂′</code> dans A₂. Reconnaît <code>L₁ ∩ L₂</code>. Preuve : <code>q₁ –u→* q₁′</code> et <code>q₂ –u→* q₂′</code> ssi <code>(q₁,q₂) –u→* (q₁′,q₂′)</code>.</p></div>
+  <details class="quiz"><summary>Comment obtenir L₁ \ L₂ avec ces outils ?</summary>
+    <div class="answer"><span class="tag">Réponse</span><br>L₁ \ L₂ = L₁ ∩ (Σ* \ L₂) : complémentaire de A₂, puis produit avec A₁.</div></details>
+</section>
+
+<section class="skill" id="c6">
+  <div class="skill-head"><span class="skill-num">6</span><h2>Théorème de Kleene</h2></div>
+  <div class="skill-goal">Passer d’une expression régulière à un automate (Berry-Sethi) et inversement (élimination d’états).</div>
+  <div class="good"><strong>Kleene :</strong> L est régulier ⇔ il existe un automate fini A tel que L = L(A).</div>
+  <h3>Expression → automate : Berry-Sethi (Glushkov)</h3>
+  <div class="card">
+    <ol>
+      <li><strong>Linéariser</strong> : numéroter les lettres de gauche à droite (e′).</li>
+      <li>Calculer <code>P</code> (premières lettres), <code>D</code> (dernières), <code>F</code> (facteurs de longueur 2) de L(e′).</li>
+      <li><strong>Automate local</strong> : état initial q₀ et un état par lettre indicée ; <code>q₀ –aᵢ→ qaᵢ</code> si aᵢ ∈ P ; qaᵢ final si aᵢ ∈ D ; <code>qaᵢ –aⱼ→ qaⱼ</code> si aᵢaⱼ ∈ F ; q₀ final si ε ∈ L(e).</li>
+      <li><strong>Effacer les indices</strong> (Glushkov).</li>
+    </ol>
+    <p>Exemple : <code>e = (a(ab)*)* | (ba)*</code> donne <code>e′ = (a₁(a₂b₃)*)* | (b₄a₅)*</code>, <code>P = {a₁, b₄}</code>, <code>D = {a₁, b₃, a₅}</code>, <code>F = {a₁a₁, a₁a₂, a₂b₃, b₃a₂, b₃a₁, b₄a₅, a₅b₄}</code>, et q₀ est final car ε ∈ L(e).</p>
+  </div>
+  <p>Notions sous-jacentes : langage local, expression linéaire (tout langage local est régulier). Méthode de Thompson (construction inductive). <span class="bonus-tag">complément</span></p>
+  <h3>Automate → expression : élimination d’états</h3>
+  <div class="card">
+    <ol>
+      <li>Un seul état initial et un seul final (sinon en ajouter avec des ε-transitions).</li>
+      <li>Éliminer un à un les états ni initial ni final : pour tout chemin p → q → r, remplacer par <code>e_pr | e_pq e_qq* e_qr</code>.</li>
+      <li>Lire l’expression sur l’automate restant.</li>
+    </ol>
+  </div>
+  <p>Autres méthodes : McNaughton-Yamada, lemme d’Arden (élimination de Gauss). <span class="bonus-tag">complément</span></p>
+  <details class="quiz"><summary>Pourquoi les états du Glushkov sont-ils en bijection avec les lettres de e ?</summary>
+    <div class="answer"><span class="tag">Réponse</span><br>Un état par lettre indicée de e′ plus q₀ : l’automate a |e|ₗₑₜₜᵣₑₛ + 1 états, et ne contient pas d’ε-transition.</div></details>
+</section>
+
+<section class="skill" id="c7">
+  <div class="skill-head"><span class="skill-num">7</span><h2>Lemme de l’étoile</h2></div>
+  <div class="skill-goal">Prouver qu’un langage n’est pas régulier en choisissant un bon mot.</div>
+  <div class="card"><span class="def-label">Énoncé</span>
+    <p>Si L est reconnu par un automate à N états, tout <code>u ∈ L</code> avec <code>|u| ≥ N</code> s’écrit <code>u = xyz</code> avec <code>y ≠ ε</code>, <code>|xy| ≤ N</code> et <code>xyⁿz ∈ L</code> pour tout n ≥ 0.</p>
+    <p>Preuve : un chemin acceptant de longueur ≥ N passe par ≥ N+1 états, donc répète un état (principe des tiroirs) ; la boucle correspond à y.</p></div>
+  <div class="card"><span class="def-label">Application : { aⁿbⁿ }</span>
+    <p>Par l’absurde, on prend <code>u = aᴺbᴺ</code>. Comme <code>|xy| ≤ N</code>, y ne contient que des a, et y ≠ ε. Alors <code>xy²z = aᴺ⁺|y|bᴺ ∉ L</code> : contradiction.</p></div>
+  <div class="warn"><strong>Réflexe.</strong> Choisir u pour que la condition |xy| ≤ N fixe la forme de y (ici, des a seulement). Sinon, il faut distinguer plusieurs cas. Le lemme ne prouve jamais qu’un langage <em>est</em> régulier.</div>
+  <details class="quiz"><summary>Montrer que { ww̃ ou aⁿ² } n’est pas traité ici : quel mot choisir pour { aⁿbⁿ } ?</summary>
+    <div class="answer"><span class="tag">Réponse</span><br>aᴺbᴺ avec N la constante du lemme : y est alors forcément dans le bloc de a.</div></details>
+</section>
+
+<div class="checklist">
+  <h2>Checklist de révision</h2>
+  <label><input type="checkbox"> Chemin, mot accepté, langage reconnu</label>
+  <label><input type="checkbox"> Émonder, compléter à la main</label>
+  <label><input type="checkbox"> Déterminiser à la main</label>
+  <label><input type="checkbox"> Éliminer les ε-transitions</label>
+  <label><input type="checkbox"> Union, complémentaire, produit</label>
+  <label><input type="checkbox"> Berry-Sethi à la main</label>
+  <label><input type="checkbox"> Élimination d’états à la main</label>
+  <label><input type="checkbox"> Lemme de l’étoile : choisir le bon mot</label>
+</div>
+</main>
+
+<footer>Fiche tirée du cours de J. Peignier (Lycée Kléber). Exercices en ligne : <a href="https://fortierq.github.io/automates/">fortierq.github.io/automates</a></footer>
+
+<script>
+(function(){
+  var dark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+  mermaid.initialize({startOnLoad:true, theme: dark ? "dark" : "default"});
+  if (window.hljs) hljs.highlightAll();
+
+  var word = "abab", sets = [[1],[1,2],[1,3],[1,2],[1,3]], i = 0;
+  var txt = document.getElementById("wtxt"), prev = document.getElementById("wprev"), next = document.getElementById("wnext");
+  function render(){
+    [1,2,3].forEach(function(n){ document.getElementById("n"+n).classList.toggle("on", sets[i].indexOf(n) >= 0); });
+    var lu = word.slice(0,i), reste = word.slice(i);
+    var s = "Lu : « " + (lu || "ε") + " » · reste : « " + (reste || "ε") + " » · états possibles : {" + sets[i].join(", ") + "}. ";
+    if (i === 0) s += "On part des états initiaux.";
+    else s += "On lit " + word[i-1] + " depuis chaque état de l’ensemble précédent.";
+    if (i === word.length) s += sets[i].indexOf(3) >= 0 ? " Un état final (3) est atteint : mot accepté." : " Aucun état final : mot rejeté.";
+    txt.textContent = s;
+    prev.disabled = i === 0; next.disabled = i === word.length;
+  }
+  prev.onclick = function(){ if (i > 0) { i--; render(); } };
+  next.onclick = function(){ if (i < word.length) { i++; render(); } };
+  render();
+})();
+</script>
+</body>
+</html>
