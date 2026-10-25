@@ -5,12 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Chapitre 4 — Algorithmique des graphes (MPI)</title>
 <link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/flashcards.css">
 </head>
 <body>
 <header class="top"><div class="top-inner">
   <div class="top-title"><a href="../index.html" class="home-link">← Mes fiches</a> · Chapitre 4 — Algorithmique des graphes</div>
   <nav class="chips">
-    <a href="#c1">1 · A*</a><a href="#c2">2 · Kruskal</a><a href="#c3">3 · DFS avec dates</a><a href="#c4">4 · Kosaraju-Sharir</a><a href="#c5">5 · Couplage</a>
+    <a href="#c1">1 · A*</a><a href="#c2">2 · Kruskal</a><a href="#c3">3 · DFS avec dates</a><a href="#c4">4 · Kosaraju-Sharir</a><a href="#c5">5 · Couplage</a><a href="#c6">6 · Tester</a>
   </nav>
 </div></header>
 
@@ -265,6 +266,12 @@ linkStyle 1,2,4 stroke:#7a4cff,stroke-width:4px
     <div class="answer"><span class="tag">Réponse</span><p>Non, voir l’exemple : <code>{x–1, z–2}</code> est maximal mais le maximum vaut 3. Berge : il reste le chemin augmentant <code>y–1–x–2–z–3</code>.</p></div></details>
 </section>
 
+<section class="skill" id="c6">
+  <div class="skill-head"><span class="skill-num">6</span><h2>Tester ses connaissances</h2></div>
+  <div class="skill-goal">Cartes à répétition espacée : note chaque réponse avec une couleur, le site te dit quand revoir. Raccourcis : Espace puis 1 à 4.</div>
+  <div class="card fc" id="flashcards" data-chapitre="ch04"></div>
+</section>
+
 <div class="checklist">
   <h2>Checklist de révision</h2>
   <label><input type="checkbox"> Dérouler A* à la main, avec réinsertion dans la file</label>
@@ -278,6 +285,8 @@ linkStyle 1,2,4 stroke:#7a4cff,stroke-width:4px
 
 <footer>Fiche tirée du cours de Joshua Peignier (Lycée Kléber), MPI — chapitre 4. <a href="../index.html">Retour à l’accueil</a></footer>
 
+<script src="../assets/cartes-ch04.js"></script>
+<script src="../assets/flashcards.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ocaml.min.js"></script>
