@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>MPI – Ch. 3 : Automates finis</title>
 <link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/flashcards.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.3/mermaid.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ocaml.min.js"></script>
@@ -13,7 +14,7 @@
 <header class="top"><div class="top-inner">
   <div class="top-title"><a href="../index.html" class="home-link">← Mes fiches</a> · Ch. 3 – Automates finis</div>
   <nav class="chips">
-    <a href="#c1">1 · Bases</a><a href="#c2">2 · Émonder / compléter</a><a href="#c3">3 · Déterminiser</a><a href="#c4">4 · ε-transitions</a><a href="#c5">5 · Stabilité</a><a href="#c6">6 · Kleene</a><a href="#c7">7 · Lemme de l’étoile</a>
+    <a href="#c1">1 · Bases</a><a href="#c2">2 · Émonder / compléter</a><a href="#c3">3 · Déterminiser</a><a href="#c4">4 · ε-transitions</a><a href="#c5">5 · Stabilité</a><a href="#c6">6 · Kleene</a><a href="#c7">7 · Lemme de l’étoile</a><a href="#c8">8 · Tester</a>
   </nav>
 </div></header>
 
@@ -194,7 +195,7 @@ let accepte a mot =
   </div>
   <p>Autres méthodes : McNaughton-Yamada, lemme d’Arden (élimination de Gauss). <span class="bonus-tag">complément</span></p>
   <details class="quiz"><summary>Pourquoi les états du Glushkov sont-ils en bijection avec les lettres de e ?</summary>
-    <div class="answer"><span class="tag">Réponse</span><br>Un état par lettre indicée de e′ plus q₀ : l’automate a |e|ₗₑₜₜᵣₑₛ + 1 états, et ne contient pas d’ε-transition.</div></details>
+    <div class="answer"><span class="tag">Réponse</span><br>Un état par lettre indicée de e′ plus q₀ : l’automate a autant d’états que e a de lettres, plus 1, et ne contient pas d’ε-transition.</div></details>
 </section>
 
 <section class="skill" id="c7">
@@ -206,8 +207,14 @@ let accepte a mot =
   <div class="card"><span class="def-label">Application : { aⁿbⁿ }</span>
     <p>Par l’absurde, on prend <code>u = aᴺbᴺ</code>. Comme <code>|xy| ≤ N</code>, y ne contient que des a, et y ≠ ε. Alors <code>xy²z = aᴺ⁺|y|bᴺ ∉ L</code> : contradiction.</p></div>
   <div class="warn"><strong>Réflexe.</strong> Choisir u pour que la condition |xy| ≤ N fixe la forme de y (ici, des a seulement). Sinon, il faut distinguer plusieurs cas. Le lemme ne prouve jamais qu’un langage <em>est</em> régulier.</div>
-  <details class="quiz"><summary>Montrer que { ww̃ ou aⁿ² } n’est pas traité ici : quel mot choisir pour { aⁿbⁿ } ?</summary>
+  <details class="quiz"><summary>Quel mot choisir pour montrer que { aⁿbⁿ } n’est pas régulier ?</summary>
     <div class="answer"><span class="tag">Réponse</span><br>aᴺbᴺ avec N la constante du lemme : y est alors forcément dans le bloc de a.</div></details>
+</section>
+
+<section class="skill" id="c8">
+  <div class="skill-head"><span class="skill-num">8</span><h2>Tester ses connaissances</h2></div>
+  <div class="skill-goal">Cartes à répétition espacée : note chaque réponse avec une couleur, le site te dit quand revoir. Raccourcis : Espace puis 1 à 4.</div>
+  <div class="card fc" id="flashcards" data-chapitre="ch03"></div>
 </section>
 
 <div class="checklist">
@@ -225,6 +232,8 @@ let accepte a mot =
 
 <footer>Fiche tirée du cours de J. Peignier (Lycée Kléber). Exercices en ligne : <a href="https://fortierq.github.io/automates/">fortierq.github.io/automates</a></footer>
 
+<script src="../assets/cartes-03.js"></script>
+<script src="../assets/flashcards.js"></script>
 <script>
 (function(){
   var dark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
