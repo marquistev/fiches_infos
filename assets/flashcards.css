@@ -1,0 +1,22 @@
+/* Flashcards : à lier après style.css */
+.fc { --g0: #e5484d; --g1: #f08c2a; --g2: #e8b923; --g3: #30a46c; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+.fc-stats { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: .9rem; color: var(--text-dim); }
+.fc-stats strong { color: var(--text); }
+.fc-dots { display: flex; flex-wrap: wrap; gap: 5px; margin: 12px 0; }
+.fc-dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; background: var(--border); vertical-align: middle; }
+.fc-g0 { --c: var(--g0); } .fc-g1 { --c: var(--g1); } .fc-g2 { --c: var(--g2); } .fc-g3 { --c: var(--g3); }
+.fc-dot.fc-g0, .fc-dot.fc-g1, .fc-dot.fc-g2, .fc-dot.fc-g3 { background: var(--c); }
+.fc-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.fc button { font: 600 .88rem -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; padding: 8px 14px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--accent-dim); color: var(--accent-text); cursor: pointer; transition: background .2s ease; }
+.fc button:disabled { opacity: .4; cursor: default; }
+.fc-small button { background: transparent; color: var(--text-dim); font-weight: 500; }
+.fc-top { display: flex; justify-content: space-between; align-items: center; font-size: .85rem; color: var(--text-dim); margin-bottom: 10px; }
+.fc-q { font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif; font-size: 1.08rem; line-height: 1.55; }
+.fc-a { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border); font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif; }
+.fc-grade { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px; }
+.fc-grade button { display: flex; flex-direction: column; gap: 2px; padding: 10px 4px; font-size: .8rem; color: var(--text);
+  border: 2px solid var(--c); background: color-mix(in srgb, var(--c) 16%, var(--bg-elev)); }
+.fc-grade button:hover { background: color-mix(in srgb, var(--c) 30%, var(--bg-elev)); }
+.fc-grade small { font-weight: 400; color: var(--text-dim); }
+.fc-msg { font-size: .85rem; color: var(--text-dim); min-height: 1.2em; margin: 8px 0 0; }
