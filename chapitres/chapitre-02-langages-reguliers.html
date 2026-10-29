@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Langages réguliers — Fiche des 7 compétences (MPI)</title>
 <link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/flashcards.css">
 </head>
 <body>
 
@@ -20,6 +21,7 @@
       <a href="#c6">⑥ Langage ↔ regex</a>
       <a href="#c7">⑦ Transformer une regex</a>
       <a href="#bonus">★ Langages locaux</a>
+      <a href="#c8">⑧ Tester mes connaissances</a>
     </nav>
   </div>
 </header>
@@ -27,8 +29,8 @@
 <main>
   <div class="hero">
     <div class="eyebrow">Fiche de révision</div>
-    <h1>Les 7 compétences exigibles, une par une</h1>
-    <p class="lead">Cette fiche reprend exactement les 7 points listés dans l'annexe « ce qui est concrètement exigible » de ton poly, et range tout le cours dessous. Chaque partie a : l'essentiel à savoir, les pièges classiques, et des exercices flash (clique sur la question pour voir la correction).</p>
+    <h1>Les 7 compétences exigibles, et tout le reste du poly</h1>
+    <p class="lead">Les 7 premières sections suivent exactement l'annexe « ce qui est concrètement exigible » de ton poly. Les notions non listées comme exigibles sont quand même présentées (badge <span class="bonus-tag">non exigible</span>), pour que tu saches ce qui est prioritaire sans rien laisser de côté. Chaque partie a : l'essentiel à savoir, les pièges classiques, des exercices flash, et des flashcards en fin de page pour réviser à long terme.</p>
   </div>
 
   <!-- ============ COMPETENCE 1 ============ -->
@@ -309,17 +311,6 @@
     </details>
   </section>
 
-  <div class="checklist">
-    <h2>✅ Auto-évaluation rapide</h2>
-    <label><input type="checkbox"> Je sais distinguer facteur et sous-mot sur un exemple, et donner un contre-exemple pour l'un et pas l'autre.</label>
-    <label><input type="checkbox"> Je peux définir précisément union, concaténation et étoile, et calculer L<sup>n</sup>, L<sup>∗</sup> sur un petit exemple.</label>
-    <label><input type="checkbox"> Je ne confonds jamais ε, ∅ et {ε} — même à l'oral, sans dire « le vide ».</label>
-    <label><input type="checkbox"> Je sais énoncer la définition inductive des langages réguliers et citer les trois stabilités (union, concaténation, étoile).</label>
-    <label><input type="checkbox"> Je sais écrire la grammaire des expressions régulières et la fonction L(·) qui leur associe un langage.</label>
-    <label><input type="checkbox"> Je sais traduire une phrase en expression régulière, et lire une expression régulière pour la décrire en français.</label>
-    <label><input type="checkbox"> Je connais par cœur les règles de réécriture (commutativité, distributivité, e | ∅, eε, e∅, e⁺, dépliage de e⋆) et je peux les appliquer sur une expression donnée.</label>
-  </div>
-
   <!-- ============ BONUS : LANGAGES LOCAUX ============ -->
   <section class="skill bonus" id="bonus">
     <div class="skill-head"><span class="skill-num">★</span><h2>Langages locaux <span class="bonus-tag">non exigible</span></h2></div>
@@ -392,11 +383,32 @@
       <p>Parce que la lettre a apparaît deux fois dans l'expression <span class="re">(aa | b)⋆</span> — elle n'est donc pas linéaire. Le théorème ne dit rien dans ce cas (ni que le langage est local, ni qu'il ne l'est pas) : il faudrait vérifier directement avec P, D, N.</p></div>
     </details>
   </section>
+
+  <!-- ============ TESTER SES CONNAISSANCES ============ -->
+  <section class="skill" id="c8">
+    <div class="skill-head"><span class="skill-num">⑧</span><h2>Tester ses connaissances</h2></div>
+    <div class="skill-goal">Cartes à répétition espacée : note chaque réponse avec une couleur, le site te dit quand revoir. Raccourcis : Espace puis 1 à 4.</div>
+    <div class="card fc" id="flashcards" data-chapitre="ch02"></div>
+  </section>
+
+  <div class="checklist">
+    <h2>✅ Auto-évaluation rapide</h2>
+    <label><input type="checkbox"> Je sais distinguer facteur et sous-mot sur un exemple, et donner un contre-exemple pour l'un et pas l'autre.</label>
+    <label><input type="checkbox"> Je peux définir précisément union, concaténation et étoile, et calculer L<sup>n</sup>, L<sup>∗</sup> sur un petit exemple.</label>
+    <label><input type="checkbox"> Je ne confonds jamais ε, ∅ et {ε} — même à l'oral, sans dire « le vide ».</label>
+    <label><input type="checkbox"> Je sais énoncer la définition inductive des langages réguliers et citer les trois stabilités (union, concaténation, étoile).</label>
+    <label><input type="checkbox"> Je sais écrire la grammaire des expressions régulières et la fonction L(·) qui leur associe un langage.</label>
+    <label><input type="checkbox"> Je sais traduire une phrase en expression régulière, et lire une expression régulière pour la décrire en français.</label>
+    <label><input type="checkbox"> Je connais par cœur les règles de réécriture (commutativité, distributivité, e | ∅, eε, e∅, e⁺, dépliage de e⋆) et je peux les appliquer sur une expression donnée.</label>
+  </div>
 </main>
 
 <footer>
   Fiche construite à partir de « Chapitre 2 : Langages réguliers » (Joshua Peignier, Lycée Kléber, MPI), réorganisée autour des 7 compétences de l'annexe « ce qui est concrètement exigible ». Pour t'entraîner davantage : <a href="https://fortierq.github.io/automates/" target="_blank" rel="noopener">fortierq.github.io/automates</a> (onglet Langages → Expression).
 </footer>
+
+<script src="../assets/cartes-ch02.js"></script>
+<script src="../assets/flashcards.js"></script>
 
 </body>
 </html>
